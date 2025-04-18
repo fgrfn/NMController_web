@@ -30,4 +30,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: fgrfn/nmcontroller:latest
+        tags: fgrfn/NMController_web:latest
