@@ -12,6 +12,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . /app
 
-EXPOSE 5000
+EXPOSE 7877
 
-CMD ["python3", "nmcontroller.py"]
+CMD ["python", "nmcontroller.py"]
