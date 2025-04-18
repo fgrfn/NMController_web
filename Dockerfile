@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . /app
 
-EXPOSE 7877
+EXPOSE 7877/tcp
+EXPOSE 1234/udp
 
 CMD ["python", "nmcontroller.py"]
