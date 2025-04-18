@@ -1,20 +1,19 @@
-FROM python:3.11-slim
+# Verwende das offizielle Python-Image von Docker Hub
+FROM python:3.9-slim
 
-WORKDIR /app
+# Erstellung eines Work Dir
+WORKDIR /usr/src/app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
-# Install Python dependencies
-COPY requirements.txt .
+# Git clone der offiziellen Repository
+RUN apt-get update && apt-get install -y git \
+    && git clone https://github.com/NMminer1024/NMController_web . \
+    && apt-get remove -y git && apt-get autoremove -y
+
+# Installation der Abhängigkeiten
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY . /app
+# Freigabe des WebUI Port 7887
+EXPOSE 7877
 
-EXPOSE 7877/tcp
-EXPOSE 12345/udp
-EXPOSE 1234/udp
-
+# start des Controllers
 CMD ["python", "nmcontroller.py"]
