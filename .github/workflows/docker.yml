@@ -5,8 +5,10 @@ on:
     paths:
       - 'Dockerfile'
       - '.dockerignore'
-      - 'src/**'
       - 'requirements.txt'
+      - '*.py'             # Python-Files im Root
+      - 'web/**'           # Ordner aus dem Original-Repo
+      - 'templates/**'     # Flask-Templates
   workflow_dispatch:  # manueller Trigger erlaubt
 
 jobs:
