@@ -17,37 +17,46 @@ jobs:
       - name: Set Upstream
         run: |
           git remote add upstream https://github.com/NMminer1024/NMController_web.git
-          git fetch upstream
+          git fetch --tags upstream
 
       - name: Get Latest Upstream Tag
         id: upstream_tag
         run: |
-          TAG=$(git ls-remote --tags upstream | grep -o 'refs/tags/.*' | sed 's|refs/tags/||' | sort -V | tail -n 1)
+          TAG=$(git tag --list | sort -V | tail -n 1)
           echo "latest_tag=$TAG" >> $GITHUB_OUTPUT
 
-      - name: Force Push Latest Upstream Tag to Fork
+      - name: Check if Tag Exists in Origin
+        id: check_tag
+        run: |
+          if git ls-remote --tags origin | grep "refs/tags/${{ steps.upstream_tag.outputs.latest_tag }}$"; then
+            echo "tag_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "tag_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Merge & Tag if Not Exists
+        if: steps.check_tag.outputs.tag_exists == 'false'
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-      
-          TAG=${{ steps.upstream_tag.outputs.latest_tag }}
-      
-          # 🔥 Lokalen Tag löschen, falls vorhanden
-          git tag -d "$TAG" 2>/dev/null || true
-      
-          # 💡 Hol Upstream-Tag frisch
-          git fetch upstream "refs/tags/$TAG:refs/tags/$TAG"
-      
-          # 🚀 Push ihn hart in deinen Fork
-          git push --force origin "refs/tags/$TAG:refs/tags/$TAG"
+
+          git fetch upstream
+          git merge --no-edit upstream/main || true
+
+          git tag -d ${{ steps.upstream_tag.outputs.latest_tag }} 2>/dev/null || true
+          git tag ${{ steps.upstream_tag.outputs.latest_tag }}
+          git push origin main
+          git push origin ${{ steps.upstream_tag.outputs.latest_tag }}
 
       - name: Log in to DockerHub
+        if: steps.check_tag.outputs.tag_exists == 'false'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker Image
+        if: steps.check_tag.outputs.tag_exists == 'false'
         uses: docker/build-push-action@v5
         with:
           context: .
