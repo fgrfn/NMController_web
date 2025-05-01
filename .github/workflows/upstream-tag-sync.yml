@@ -39,10 +39,8 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-
           git fetch upstream
           git merge --no-edit upstream/main || true
-
           git tag -d ${{ steps.upstream_tag.outputs.latest_tag }} 2>/dev/null || true
           git tag ${{ steps.upstream_tag.outputs.latest_tag }}
           git push origin main
