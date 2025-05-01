@@ -29,13 +29,16 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-
+      
           TAG=${{ steps.upstream_tag.outputs.latest_tag }}
-
-          # Hole Upstream-Tag direkt
-          git fetch upstream tag "$TAG"
-
-          # Force-Push 1:1 an origin (dein Fork)
+      
+          # 🔥 Lokalen Tag löschen, falls vorhanden
+          git tag -d "$TAG" 2>/dev/null || true
+      
+          # 💡 Hol Upstream-Tag frisch
+          git fetch upstream "refs/tags/$TAG:refs/tags/$TAG"
+      
+          # 🚀 Push ihn hart in deinen Fork
           git push --force origin "refs/tags/$TAG:refs/tags/$TAG"
 
       - name: Log in to DockerHub
