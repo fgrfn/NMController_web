@@ -19,21 +19,28 @@ jobs:
           git remote add upstream https://github.com/NMminer1024/NMController_web.git
           git fetch upstream
 
+      - name: Debugging SHA-Werte
+        run: |
+          LOCAL_SHA=$(git rev-parse origin/main)
+          UPSTREAM_SHA=$(git rev-parse upstream/main)
+          echo "LOCAL_SHA=$LOCAL_SHA"
+          echo "UPSTREAM_SHA=$UPSTREAM_SHA"
+
       - name: Compare Upstream with Origin
         id: compare
         run: |
           LOCAL_SHA=$(git rev-parse origin/main)
           UPSTREAM_SHA=$(git rev-parse upstream/main)
-          echo "local_sha=$LOCAL_SHA" >> $GITHUB_OUTPUT
-          echo "upstream_sha=$UPSTREAM_SHA" >> $GITHUB_OUTPUT
-          if [ "$LOCAL_SHA" != "$UPSTREAM_SHA" ]; then
-            echo "update_required=true" >> $GITHUB_OUTPUT
+          echo "local_sha=$LOCAL_SHA" >> $GITHUB_ENV
+          echo "upstream_sha=$UPSTREAM_SHA" >> $GITHUB_ENV
+          if [[ "$LOCAL_SHA" != "$UPSTREAM_SHA" ]]; then
+            echo "update_required=true" >> $GITHUB_ENV
           else
-            echo "update_required=false" >> $GITHUB_OUTPUT
+            echo "update_required=false" >> $GITHUB_ENV
           fi
 
       - name: Exit if No Update Needed
-        if: steps.compare.outputs.update_required == 'false'
+        if: env.update_required == 'false'
         run: |
           echo "No changes in upstream. Skipping build."
           exit 0
@@ -42,7 +49,7 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git merge upstream/main --allow-unrelated-histories --no-edit || true
+          git merge upstream/main --allow-unrelated-histories --no-edit || echo "Merge failed"
           git push origin main
 
       - name: Log in to DockerHub
