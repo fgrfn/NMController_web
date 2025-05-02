@@ -17,7 +17,7 @@ jobs:
 
       - name: Add and Fetch Upstream
         run: |
-          git remote add upstream https://github.com/ORIGINAL/REPO.git
+          git remote add upstream https://github.com/NMminer1024/NMController_web.git
           git fetch upstream
 
       - name: Check if update is required
@@ -43,5 +43,5 @@ jobs:
       - name: Build and Push Docker Image
         if: env.update_required == 'true'
         run: |
-          docker build -t yourdockerhubuser/yourimagename:latest .
-          docker push yourdockerhubuser/yourimagename:latest
+          docker build -t fgrfn/nmcontroller_web:latest .
+          docker push fgrfn/nmcontroller_web:latest
